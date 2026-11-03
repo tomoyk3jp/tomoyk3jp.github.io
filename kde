@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+# Short-URL stub for the kdedevenv1 KDE bootstrap. Fetches the real script from the gist
+# (the source of truth, kept in sync with the private tomoyk3jp/kdedevenv1 repo) and runs it.
+#   curl -fsSL tomoyk3jp.github.io/kde | bash
+#   curl -fsSL tomoyk3jp.github.io/kde | bash -s -- --run --git-name "Jane Doe" --git-email jane@example.com
+# Wrapped in main() so a truncated download never runs half a script.
+main() {
+  local url="https://gist.githubusercontent.com/tomoyk3jp/1d0bed25641ed3601e5fffdbc1d8e7c7/raw/init-fresh-kde.sh" f rc
+  f="$(mktemp)" || exit 1
+  if ! curl -fsSL "$url" -o "$f"; then
+    echo "✗ could not download $url" >&2; rm -f "$f"; exit 1
+  fi
+  # Give the real script the terminal as stdin (this stub arrives on a pipe), so its
+  # prompts and the GitHub device-code login work as if it had been downloaded and run.
+  if [[ -r /dev/tty ]]; then bash "$f" "$@" </dev/tty; else bash "$f" "$@"; fi
+  rc=$?; rm -f "$f"; exit "$rc"
+}
+main "$@"
