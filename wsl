@@ -12,7 +12,7 @@ main() {
   fi
   # Give the real script the terminal as stdin (this stub arrives on a pipe), so its
   # prompts and the GitHub device-code login work as if it had been downloaded and run.
-  if [[ -r /dev/tty ]]; then bash "$f" "$@" </dev/tty; else bash "$f" "$@"; fi
+  if (exec </dev/tty) 2>/dev/null; then bash "$f" "$@" </dev/tty; else bash "$f" "$@"; fi
   rc=$?; rm -f "$f"; exit "$rc"
 }
 main "$@"
